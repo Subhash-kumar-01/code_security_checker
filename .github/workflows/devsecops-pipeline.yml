@@ -1,0 +1,73 @@
+name: AI-Augmented DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # For SARIF upload
+      pull-requests: write     # For AI comments
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 1. Secrets Scanning
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+
+      # 2. SAST - Semgrep
+      - name: Semgrep Scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: "auto"   # or path to semgrep.yaml
+
+      # 3. CodeQL (GitHub Advanced Security - free for public)
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          upload: true
+
+      # 4. SCA + Container + IaC with Trivy
+      - name: Build Docker Image
+        run: docker build -t myapp:${{ github.sha }} ./app
+
+      - name: Trivy Scan (FS + Image + IaC)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs,image,config'
+          scan-ref: './,myapp:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy SARIF
+        uses: github/code-scanning/upload-sarif@v1
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      # 5. AI-Augmented Review
+      - name: AI Code Review & Findings Summary
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}   # e.g. http://localhost:11434
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python scripts/ai-code-review.py
+
+      # Optional: Fail on critical issues (policy gate)
+      - name: Enforce Security Gate
+        run: |
+          echo "Checking for critical vulnerabilities..."
+          # Add custom logic or use trivy exit codes
