@@ -1,0 +1,32 @@
+# trivy.yaml - Trivy Security Scanner Configuration
+
+# Severity levels to scan
+severity:
+  - HIGH
+  - CRITICAL
+
+# Ignore unfixed vulnerabilities (optional)
+ignore-unfixed: false
+
+# Format for output
+format: table
+
+# Exit code when vulnerabilities are found
+exit-code: 1
+
+# Cache directory
+cache-dir: /tmp/trivy-cache
+
+# Skip files/directories (optional)
+skip-files:
+  - "node_modules/**"
+  - "venv/**"
+  - "**/__pycache__/**"
+
+skip-dirs:
+  - "tests"
+  - "test"
+
+# Vulnerability database update
+db:
+  auto-update: true
