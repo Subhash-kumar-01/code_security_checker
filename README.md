@@ -35,7 +35,8 @@ text
 git clone https://github.com/yourusername/ai-augmented-devsecops-pipeline.git
 cd ai-augmented-devsecops-pipeline
 
-2. Install Required Tools (for local testing)
+### 2. Install Required Tools (for local testing)
+
 Bash
 # Install security tools
 brew install gitleaks trivy semgrep     # macOS
