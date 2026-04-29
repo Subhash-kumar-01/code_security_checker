@@ -1,0 +1,37 @@
+# semgrep.yaml - Custom Security Rules
+
+rules:
+  - id: python-eval-usage
+    patterns:
+      - pattern: eval(...)
+    message: "Dangerous use of eval() detected - High Risk of Code Injection"
+    severity: ERROR
+    languages: [python]
+
+  - id: python-command-injection
+    patterns:
+      - pattern: subprocess...shell=True
+    message: "Command Injection risk: shell=True should be avoided"
+    severity: ERROR
+    languages: [python]
+
+  - id: python-weak-hash-md5
+    patterns:
+      - pattern: hashlib.md5(...)
+    message: "Weak hashing algorithm MD5 detected. Use SHA256 or better."
+    severity: WARNING
+    languages: [python]
+
+  - id: python-insecure-file-write
+    patterns:
+      - pattern: open(..., "w")
+    message: "Insecure file write operation detected"
+    severity: WARNING
+    languages: [python]
+
+  - id: debug-endpoint-exposed
+    patterns:
+      - pattern: /debug
+    message: "Debug endpoint exposed in production code"
+    severity: WARNING
+    languages: [python]
