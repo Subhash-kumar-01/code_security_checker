@@ -1,0 +1,28 @@
+# .gitleaks.toml - Gitleaks Configuration
+
+title = "AI-Augmented DevSecOps Pipeline - Gitleaks Config"
+
+[allowlist]
+description = "Global allowlist for false positives"
+paths = [
+    ".*\\.md$",
+    ".*\\.txt$",
+    "test/.*",
+    "tests/.*",
+    ".*test.*"
+]
+
+[[rules]]
+description = "AWS Access Key"
+regex = '''(?i)AKIA[0-9A-Z]{16}'''
+secretGroup = 0
+
+[[rules]]
+description = "GitHub Personal Access Token"
+regex = '''ghp_[0-9a-zA-Z]{36}'''
+secretGroup = 0
+
+[[rules]]
+description = "Password in Code"
+regex = '''(?i)(password|passwd|pwd)\s*[:=]\s*["']?[^"'\s]{8,}'''
+secretGroup = 0
